@@ -12,3 +12,4 @@ basemap-data-hires
 colorcet
 ipython
 gunicorn
+httplib2
