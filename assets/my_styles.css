@@ -25,7 +25,7 @@ body {background-color: #101125;}
 }
 #query-section {
     background-color: var(--color_light_2);
-    opacity: 0.7;
+    opacity: 0.75;
     width: 200px;
     position: absolute;
     top: 150px;
@@ -37,7 +37,7 @@ body {background-color: #101125;}
 
 #report-and-download-section {
     background-color: var(--color_light_2);
-    opacity: 0.7;
+    opacity: 0.75;
     width: 200px;
     position: absolute;
     top: 150px;
