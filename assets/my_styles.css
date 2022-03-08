@@ -1,0 +1,59 @@
+:root {
+    --color_dark_1: #1d191e;
+    --color_dark_2: #1f2138;
+    --color_dark_3: #101125;
+    --color_light_1: #a4967a;
+    --color_light_2: #bfb39b;
+    --panel-border-radius: 10px;
+}
+
+body {background-color: #101125;}
+
+.banner-header {color: var(--color_light_2);}
+.banner-blurb {color: var(--color_light_1);}
+.section-header {
+    color: var(--color_dark_1);
+    text-decoration: underline;
+}
+
+#banner {
+    width: 100%;
+    /* transform: translate(2.5%, 0); */
+    height: 100px;
+    /* border: 1px solid white; */
+    background-color: var(--color_dark_2);
+}
+#query-section {
+    background-color: var(--color_light_2);
+    opacity: 0.7;
+    width: 200px;
+    position: absolute;
+    top: 150px;
+    left: 70px;
+    z-index: 1;
+    /* border: 2px solid red; */
+    border-radius: var(--panel-border-radius);
+}
+
+#report-and-download-section {
+    background-color: var(--color_light_2);
+    opacity: 0.7;
+    width: 200px;
+    position: absolute;
+    top: 150px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 1;
+    border-radius: var(--panel-border-radius);
+    /* border: 2px solid red; */
+}
+
+
+#map-section {
+    width: 95%;
+    transform: translate(2.5%, 0);
+    left: 2.5%;
+    height=70%;
+    max-height: 800px;
+    /* border: 1px solid white; */
+}

@@ -1,0 +1,22 @@
+## To use this environment file with Anaconda Python: conda env create -f environment.yml -p ./env
+## To activate the environment: conda activate ./env
+
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3
+  - numpy
+  - cftime
+  - pandas
+  - xarray
+  - scipy
+  - plotly
+  - dash
+  - dash-bootstrap-components
+  - matplotlib
+  - basemap
+  - basemap-data-hires
+  - colorcet
+  - ipython
+  
