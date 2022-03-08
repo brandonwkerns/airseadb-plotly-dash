@@ -1,0 +1,14 @@
+numpy
+cftime
+pandas
+xarray
+scipy
+plotly
+dash
+dash-bootstrap-components
+matplotlib
+basemap
+basemap-data-hires
+colorcet
+ipython
+gunicorn
