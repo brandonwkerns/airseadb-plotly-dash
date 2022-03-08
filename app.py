@@ -12,7 +12,7 @@ from dash import Dash, html, dcc, Input, Output
 from plotting_functions import *  ## Includes color palette.
 
 app = Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}])
-
+server = app.server
 
 data_dir = './data' #'/home/orca/bkerns/projects/noaa_air_sea_flux/noaa_psd_ship_obs/data/processed'
 html_out_dir = '/home/orca/bkerns/public_html/projects/noaa_air_sea_flux/report_feb_2022/interactive_plots'
