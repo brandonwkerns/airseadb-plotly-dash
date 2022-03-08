@@ -110,6 +110,23 @@ query_section = html.Div([
     html.Br(),
     html.Table([
         html.Tr([
+            html.Td('Date: '),
+            html.Td(
+                dcc.DatePickerRange(
+                    id='date-picker-range',
+                    min_date_allowed=cftime.datetime(1995, 8, 5),
+                    max_date_allowed=cftime.datetime(2017, 9, 19),
+                    initial_visible_month=cftime.datetime(2017, 8, 5),
+                    start_date=cftime.datetime(2017, 8, 15),
+                    end_date=cftime.datetime(2017, 8, 25),
+                    updatemode='bothdates',
+                    className='date-picker'
+                )
+            )
+        ])
+    ]),
+    html.Table([
+        html.Tr([
             html.Td('SST: '),
             html.Td([dcc.Input(id='min-sst-input', value=str(np.nanmin(sst)),type='text', size='8', debounce=True),
             ' to ',dcc.Input(id='max-sst-input', value=str(np.nanmax(sst)),type='text', size='8', debounce=True),' Celsius'])

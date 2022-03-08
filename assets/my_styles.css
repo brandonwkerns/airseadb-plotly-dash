@@ -16,6 +16,20 @@ body {background-color: #101125;}
     text-decoration: underline;
 }
 
+/* Date range picker */
+
+.DateInput {
+    display: inline;
+}
+
+.DateInput_input {
+    font-size: 14px;
+    line-height: 15px;
+    width: 80%;
+}
+
+
+
 #banner {
     width: 100%;
     /* transform: translate(2.5%, 0); */
