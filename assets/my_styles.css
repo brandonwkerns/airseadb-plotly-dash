@@ -28,6 +28,18 @@ body {background-color: #101125;}
     width: 80%;
 }
 
+/* Customize the legend and color bar appearance. */
+.bg {
+    rx: var(--panel-border-radius);
+    ry: var(--panel-border-radius);
+    fill-opacity: 0.80 !important;
+}
+
+.cbbg {
+    rx: var(--panel-border-radius);
+    ry: var(--panel-border-radius);
+    fill-opacity: 0.80 !important;
+}
 
 
 #banner {
