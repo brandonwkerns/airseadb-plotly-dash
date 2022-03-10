@@ -103,7 +103,7 @@ banner = html.Div([
 query_section = html.Div([
     html.H2('Query Data', className='section-header'),
     html.Label('Cruises:'),
-    dcc.Dropdown(['DYNAMO (2011)', 'AEROSE (2006)'], multi=True, value=['DYNAMO (2011)',]),
+    dcc.Dropdown(['DYNAMO (2011)', 'AEROSE (2006)'], multi=True, value=['DYNAMO (2011)',],style={'backgroundColor':'#ff6633'}),
     html.Label('Color by:'),
     dcc.RadioItems(['SST','Wind Speed'], value='SST', id='color-by-variable'),
     html.Label('Subset by:'),
@@ -120,7 +120,7 @@ query_section = html.Div([
                     start_date=cftime.datetime(2017, 8, 15),
                     end_date=cftime.datetime(2017, 8, 25),
                     updatemode='bothdates',
-                    className='date-picker'
+                    className='date-picker',style={'backgroundColor':'#ff6633'}
                 )
             )
         ])
@@ -128,24 +128,13 @@ query_section = html.Div([
     html.Table([
         html.Tr([
             html.Td('SST: '),
-            html.Td([dcc.Input(id='min-sst-input', value=str(np.nanmin(sst)),type='text', size='8', debounce=True),
-            ' to ',dcc.Input(id='max-sst-input', value=str(np.nanmax(sst)),type='text', size='8', debounce=True),' Celsius'])
+            html.Td([dcc.Input(id='min-sst-input', value=str(np.nanmin(sst)),type='text', size='8', debounce=True, className='input-field', style={'backgroundColor':'#ff6633'}),
+            ' to ',dcc.Input(id='max-sst-input', value=str(np.nanmax(sst)),type='text', size='8', debounce=True, className='input-field', style={'backgroundColor':'#ff6633'}),' Celsius'])
         ]),
         html.Tr([
             html.Td('Wind Speed: '),
-            html.Td([dcc.Input(id='min-wspd-input', value=str(np.nanmin(wspd)),type='text', size='8', debounce=True),
-            ' to ',dcc.Input(id='max-wspd-input', value=str(np.nanmax(wspd)),type='text', size='8', debounce=True), ' m/s'])
-        ])
-    ]),
-    html.Br(),
-    html.Table([
-        html.Tr([
-            html.Td('SST Range: '),
-            html.Td([html.Label(id='min-sst-output'),' to ', html.Label(id='max-sst-output'), ' Celsius.']),
-        ]),
-        html.Tr([
-            html.Td('Wind Speed Range: '),
-            html.Td([html.Label(id='min-wspd-output'),' to ', html.Label(id='max-wspd-output'), ' m/s.'])
+            html.Td([dcc.Input(id='min-wspd-input', value=str(np.nanmin(wspd)),type='text', size='8', debounce=True, className='input-field', style={'backgroundColor':'#ff6633'}),
+            ' to ',dcc.Input(id='max-wspd-input', value=str(np.nanmax(wspd)),type='text', size='8', debounce=True, className='input-field', style={'backgroundColor':'#ff6633'}), ' m/s'])
         ])
     ]),
 ], id='query-section')
@@ -154,7 +143,7 @@ query_section = html.Div([
 report_and_download_section = html.Div([
     html.H2('Download Data', className='section-header'),
     html.Label('N = {} observations. '.format(len(df)), id='obs-count'),
-    html.Button("Download csv", id="btn-download-txt"),
+    html.Button("Download csv", id="btn-download-txt",style={'backgroundColor':'#ff6633'}),
     dcc.Download(id="download-text"),
 ], id='report-and-download-section')
 
@@ -180,37 +169,6 @@ app.layout = html.Div(children=[
 
 
 ############### 3. Interactive functionality (callbacks) ###################
-
-@app.callback(
-    Output(component_id='min-sst-output', component_property='children'),
-    Input(component_id='min-sst-input', component_property='value')
-)
-def update_min_sst(input_value):
-    return str(input_value)
-
-@app.callback(
-    Output(component_id='max-sst-output', component_property='children'),
-    Input(component_id='max-sst-input', component_property='value')
-)
-def update_max_sst(input_value):
-    return str(input_value)
-
-
-@app.callback(
-    Output(component_id='min-wspd-output', component_property='children'),
-    Input(component_id='min-wspd-input', component_property='value')
-)
-def update_min_wspd(input_value):
-    return str(input_value)
-
-@app.callback(
-    Output(component_id='max-wspd-output', component_property='children'),
-    Input(component_id='max-wspd-input', component_property='value')
-)
-def update_max_wspd(input_value):
-    return str(input_value)
-
-
 
 @app.callback(
     Output(component_id='map-with-data', component_property='figure'),

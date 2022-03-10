@@ -16,16 +16,25 @@ body {background-color: #101125;}
     text-decoration: underline;
 }
 
+
+/*input[type='text'].input-field, textarea {background-color: #ff6633;} */
+
 /* Date range picker */
+
+.DateRangePickerInput {
+    background-color: #ff6633;
+}
 
 .DateInput {
     display: inline;
+    background-color: #ff6633;
 }
 
 .DateInput_input {
     font-size: 14px;
     line-height: 15px;
     width: 80%;
+    background-color: #ff6633;
 }
 
 /* Customize the legend and color bar appearance. */
