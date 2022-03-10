@@ -103,7 +103,7 @@ banner = html.Div([
 query_section = html.Div([
     html.H2('Query Data', className='section-header'),
     html.Label('Cruises:'),
-    dcc.Dropdown(['DYNAMO (2011)', 'AEROSE (2006)'], multi=True, value=['DYNAMO (2011)',],style={'backgroundColor':'#ff6633'}),
+    dcc.Dropdown(['DYNAMO (2011)', 'AEROSE (2006)'], multi=True, value=['DYNAMO (2011)',],style={'backgroundColor':'#ffffff'}),
     html.Label('Color by:'),
     dcc.RadioItems(['SST','Wind Speed'], value='SST', id='color-by-variable'),
     html.Label('Subset by:'),
@@ -120,7 +120,7 @@ query_section = html.Div([
                     start_date=cftime.datetime(2017, 8, 15),
                     end_date=cftime.datetime(2017, 8, 25),
                     updatemode='bothdates',
-                    className='date-picker',style={'backgroundColor':'#ff6633'}
+                    className='date-picker',style={'backgroundColor':'#ffffff'}
                 )
             )
         ])
@@ -128,13 +128,13 @@ query_section = html.Div([
     html.Table([
         html.Tr([
             html.Td('SST: '),
-            html.Td([dcc.Input(id='min-sst-input', value=str(np.nanmin(sst)),type='text', size='8', debounce=True, className='input-field', style={'backgroundColor':'#ff6633'}),
-            ' to ',dcc.Input(id='max-sst-input', value=str(np.nanmax(sst)),type='text', size='8', debounce=True, className='input-field', style={'backgroundColor':'#ff6633'}),' Celsius'])
+            html.Td([dcc.Input(id='min-sst-input', value=str(np.nanmin(sst)),type='text', size='8', debounce=True, className='input-field', style={'backgroundColor':'#ffffff'}),
+            ' to ',dcc.Input(id='max-sst-input', value=str(np.nanmax(sst)),type='text', size='8', debounce=True, className='input-field', style={'backgroundColor':'#ffffff'}),' Celsius'])
         ]),
         html.Tr([
             html.Td('Wind Speed: '),
-            html.Td([dcc.Input(id='min-wspd-input', value=str(np.nanmin(wspd)),type='text', size='8', debounce=True, className='input-field', style={'backgroundColor':'#ff6633'}),
-            ' to ',dcc.Input(id='max-wspd-input', value=str(np.nanmax(wspd)),type='text', size='8', debounce=True, className='input-field', style={'backgroundColor':'#ff6633'}), ' m/s'])
+            html.Td([dcc.Input(id='min-wspd-input', value=str(np.nanmin(wspd)),type='text', size='8', debounce=True, className='input-field', style={'backgroundColor':'#ffffff'}),
+            ' to ',dcc.Input(id='max-wspd-input', value=str(np.nanmax(wspd)),type='text', size='8', debounce=True, className='input-field', style={'backgroundColor':'#ffffff'}), ' m/s'])
         ])
     ]),
 ], id='query-section')

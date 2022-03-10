@@ -13,7 +13,7 @@ body {background-color: #101125;}
 .banner-blurb {color: var(--color_light_1);}
 .section-header {
     color: var(--color_dark_1);
-    text-decoration: underline;
+    text-decoration: underline
 }
 
 
@@ -22,19 +22,19 @@ body {background-color: #101125;}
 /* Date range picker */
 
 .DateRangePickerInput {
-    background-color: #ff6633;
+    background-color: #ffffff;
 }
 
 .DateInput {
     display: inline;
-    background-color: #ff6633;
+    background-color: #ffffff;
 }
 
 .DateInput_input {
     font-size: 14px;
     line-height: 15px;
     width: 80%;
-    background-color: #ff6633;
+    background-color: #ffffff;
 }
 
 /* Customize the legend and color bar appearance. */
