@@ -32,12 +32,12 @@ def create_cruise_track_trace(lon, lat):
                     showlegend=True, hoverinfo='skip') 
 
 
-def create_data_markers_trace(lon, lat, T, Z, label):
+def create_data_markers_trace(lon, lat, T, Z, label, skip=10):
 
     cmin,cmax = get_cbar_range(Z)
 
-    return go.Scattermapbox(lon=lon, lat=lat,
-                    marker=dict(color=Z, cmin=cmin, cmax=cmax, colorscale=cc.CET_R1,
+    return go.Scattermapbox(lon=lon[::skip], lat=lat[::skip],
+                    marker=dict(color=Z[::skip], cmin=cmin, cmax=cmax, colorscale=cc.CET_R1,
                         colorbar=dict(len=0.6, title=label, y=0.1, yanchor='bottom', x=0.99, xanchor='right',bgcolor=color_light_2)),
                     hovertemplate = '%{text}<br>lon: %{lon:.2f}<br>lat: %{lat:.2f}<br>'+label+': %{marker.color:.2f}',
                     text=T,
