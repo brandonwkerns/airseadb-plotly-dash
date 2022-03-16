@@ -28,7 +28,7 @@ mapbox_access_token = 'pk.eyJ1IjoiYnJhbmRvbndrZXJucyIsImEiOiJja3ZyOGNlZmcydTdrMm
 ##
 
 ## Connect to SQLite database
-fn = (data_dir + '/dynamo_2011.sqlite')
+fn = (data_dir + '/AirSeaDB.sqlite')
 con = sqlite3.connect(fn)
 # cur = con.cursor()
 
