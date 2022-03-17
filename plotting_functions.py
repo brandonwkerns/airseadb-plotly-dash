@@ -55,8 +55,15 @@ def create_data_markers_trace(lon, lat, T, Z, label, skip=10):
 
     cmin,cmax = get_cbar_range(Z)
 
+    if 'SST' in label: 
+        cmap = 'jet'
+    elif 'WSPD' in label:
+        cmap = cc.CET_L20
+    else:
+        cmap = cc.CET_R1
+
     return go.Scattermapbox(lon=lon[::skip], lat=lat[::skip],
-                    marker=dict(color=Z[::skip], cmin=cmin, cmax=cmax, colorscale=cc.CET_R1,
+                    marker=dict(color=Z[::skip], cmin=cmin, cmax=cmax, colorscale=cmap,
                         colorbar=dict(len=0.6, title=label, y=0.1, yanchor='bottom', x=0.99, xanchor='right',bgcolor=color_light_2)),
                     hovertemplate = '%{text}<br>lon: %{lon:.2f}<br>lat: %{lat:.2f}<br>'+label+': %{marker.color:.2f}',
                     text=T,
