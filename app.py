@@ -32,8 +32,19 @@ fn = (data_dir + '/AirSeaDB.sqlite')
 con = sqlite3.connect(fn)
 
 ## Query the database.
-df = pd.read_sql_query('SELECT lon,lat,t_sea_snake,wspd_sonic,decimal_day_of_year FROM DATA', con)
+
+query = '''
+    SELECT lon,lat,t_sea_snake,wspd_sonic,decimal_day_of_year
+        FROM DATA WHERE t_sea_snake > -999.0
+            AND t_sea_snake < 999.0
+            AND wspd_sonic > -999.0
+            AND wspd_sonic < 999.0
+    '''
+df = pd.read_sql_query(query, con)
+
 print('Query returned {0:d} observations.'.format(len(df)))
+
+df = df.dropna()
 
 ## Close the database.
 con.close()
@@ -72,9 +83,11 @@ fig.update_layout(
 ## 1.3. Add the data to the map.
 ##
 
-cruise_track = create_cruise_track_trace(X, Y)
+cruise_track = create_cruise_track_trace(X.values, Y.values)
 data_markers = create_data_markers_trace(X, Y, T, sst, 'SST [C]')
-fig.add_trace(cruise_track)
+
+for ct in cruise_track:
+    fig.add_trace(ct)
 fig.add_trace(data_markers)
 
 ##
@@ -82,7 +95,7 @@ fig.add_trace(data_markers)
 ##
 
 ## Add map grid lines.
-add_grid_lines(fig, dx=5)
+add_grid_lines(fig, dx=10)
 
 
 ############### 2. The layout of the app ###################
@@ -207,16 +220,17 @@ def update_plot_with_selected_values(min_sst_input_value, max_sst_input_value,
 
     fig.data=[]
 
-    cruise_track = create_cruise_track_trace(X, Y) # Cruise track will always be full track.
+    cruise_track = create_cruise_track_trace(X.values, Y.values) # Cruise track will always be full track.
     if color_by_variable == 'SST':
         data_markers = create_data_markers_trace(X1, Y1, T1, sst1, 'SST [C]')
     else:
         data_markers = create_data_markers_trace(X1, Y1, T1, wspd1, 'WSPD [m/s]')
 
-    fig.add_trace(cruise_track)
+    for ct in cruise_track:
+        fig.add_trace(ct)
     fig.add_trace(data_markers)
 
-    add_grid_lines(fig, dx=5)
+    add_grid_lines(fig, dx=10)
 
     return [fig, 'N = {} observations. '.format(len(df1))]
 

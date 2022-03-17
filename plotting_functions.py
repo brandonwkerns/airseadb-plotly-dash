@@ -26,10 +26,29 @@ def get_cbar_range(data, force_range=None):
     return (min_data_value, max_data_value)
 
 
+def backward_diff(x):
+    dx = 0.0*x
+    dx[1:] = x[1:] - x[:-1]
+    dx[0] = dx[1]
+    return dx
+
+
 def create_cruise_track_trace(lon, lat):
-    return go.Scattermapbox(lon=lon,lat=lat,
-                    mode='lines', line={'width':2.0, 'color':'black'}, name='Cruise Track',
-                    showlegend=True, hoverinfo='skip') 
+
+    ## Find Break Points: Where a new cruise (or cruise leg) has clearly started.
+    dlon = backward_diff(lon)
+    dlat = backward_diff(lat)
+    dlatlon = np.sqrt(np.power(dlon,2) + np.power(dlat,2))
+    break_point_indices = [0] + [x for x in range(len(dlatlon)) if dlatlon[x] > 1.0] + [len(dlatlon)]
+    
+    tracks = []
+    for ii in range(len(break_point_indices)-1):
+        tracks += [go.Scattermapbox(lon=lon[break_point_indices[ii]:break_point_indices[ii+1]],
+                        lat=lat[break_point_indices[ii]:break_point_indices[ii+1]],
+                        mode='lines', line={'width':2.0, 'color':'white'}, name='Cruise Track',
+                        showlegend=False, hoverinfo='skip')] 
+
+    return tracks
 
 
 def create_data_markers_trace(lon, lat, T, Z, label, skip=10):
