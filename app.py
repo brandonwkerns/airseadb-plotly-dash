@@ -14,7 +14,7 @@ from plotting_functions import *  ## Includes color palette.
 app = Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}])
 server = app.server
 
-data_dir = './data' #'/home/orca/bkerns/projects/noaa_air_sea_flux/noaa_psd_ship_obs/data/processed'
+data_dir = './data'
 html_out_dir = '/home/orca/bkerns/public_html/projects/noaa_air_sea_flux/report_feb_2022/interactive_plots'
 
 cruise_list = ['dynamo_2011',]
@@ -30,7 +30,6 @@ mapbox_access_token = 'pk.eyJ1IjoiYnJhbmRvbndrZXJucyIsImEiOiJja3ZyOGNlZmcydTdrMm
 ## Connect to SQLite database
 fn = (data_dir + '/AirSeaDB.sqlite')
 con = sqlite3.connect(fn)
-# cur = con.cursor()
 
 ## Query the database.
 df = pd.read_sql_query('SELECT lon,lat,t_sea_snake,wspd_sonic,decimal_day_of_year FROM DATA', con)
@@ -46,7 +45,6 @@ T = df['decimal_day_of_year']
 sst = df['t_sea_snake']
 wspd = df['wspd_sonic']
 
-# df.to_csv('selected_data.csv')
 
 ##
 ## 1.2. Plot Map
@@ -56,7 +54,6 @@ lat_foc = np.nanmean(Y)
 lon_foc = np.nanmean(X)
 
 ## Create the Plotly figure with map background.
-# fig = go.Figure(layout=dict(width=1200, height=800))
 fig = go.Figure(layout=dict(autosize=True, height=800))
 
 fig.update_layout(
@@ -83,7 +80,6 @@ fig.add_trace(data_markers)
 ##
 ## 1.4. Final formatting steps
 ##
-# fig.update_layout(colorbar=dict(x=0.8, bgcolor=color_light_2)) # This appears to be ineffective...
 
 ## Add map grid lines.
 add_grid_lines(fig, dx=5)
@@ -209,8 +205,6 @@ def update_plot_with_selected_values(min_sst_input_value, max_sst_input_value,
     sst1 = df1['t_sea_snake']
     wspd1 = df1['wspd_sonic']
 
-    # df1.to_csv('selected_data.csv')
-
     fig.data=[]
 
     cruise_track = create_cruise_track_trace(X, Y) # Cruise track will always be full track.
@@ -224,17 +218,8 @@ def update_plot_with_selected_values(min_sst_input_value, max_sst_input_value,
 
     add_grid_lines(fig, dx=5)
 
-    # fig.update_layout(transition_duration=100)
     return [fig, 'N = {} observations. '.format(len(df1))]
 
-"""
-import time
-## Loading indicator callback
-@app.callback(Output("map-with-data", "fig"))
-def input_triggers_nested(value):
-    time.sleep(1)
-    return value
-"""
 
 @app.callback(
     Output("download-text", "data"),
