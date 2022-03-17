@@ -149,11 +149,15 @@ report_and_download_section = html.Div([
 
 
 map_section = html.Div([
-    dcc.Graph(
-        id='map-with-data',
-        figure=fig,
-        config={'displayModeBar':True,}
-    ),
+    dcc.Loading(
+        id="ls-loading-map",
+        children = dcc.Graph(
+            id='map-with-data',
+            figure=fig,
+            config={'displayModeBar':True,}
+        ),
+        type="circle",
+    )
 ], id='map-section')
 
 ##
@@ -223,6 +227,14 @@ def update_plot_with_selected_values(min_sst_input_value, max_sst_input_value,
     # fig.update_layout(transition_duration=100)
     return [fig, 'N = {} observations. '.format(len(df1))]
 
+"""
+import time
+## Loading indicator callback
+@app.callback(Output("map-with-data", "fig"))
+def input_triggers_nested(value):
+    time.sleep(1)
+    return value
+"""
 
 @app.callback(
     Output("download-text", "data"),
