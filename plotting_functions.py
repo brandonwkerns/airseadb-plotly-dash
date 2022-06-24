@@ -33,7 +33,10 @@ def backward_diff(x):
     return dx
 
 
-def create_cruise_track_trace(lon, lat):
+def create_cruise_track_trace(lon, lat, fn):
+
+    ## Figure out field campaign name.
+    campaign_name = fn[0].split('/')[0]
 
     ## Find Break Points: Where a new cruise (or cruise leg) has clearly started.
     dlon = backward_diff(lon)
@@ -45,7 +48,7 @@ def create_cruise_track_trace(lon, lat):
     for ii in range(len(break_point_indices)-1):
         tracks += [go.Scattermapbox(lon=lon[break_point_indices[ii]:break_point_indices[ii+1]],
                         lat=lat[break_point_indices[ii]:break_point_indices[ii+1]],
-                        mode='lines', line={'width':2.0, 'color':'white'}, name='Cruise Track',
+                        mode='lines', line={'width':2.0, 'color':'white'}, name=campaign_name,
                         showlegend=False, hoverinfo='skip')] 
 
     return tracks

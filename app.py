@@ -217,10 +217,11 @@ def update_plot_with_selected_values(min_sst_input_value, max_sst_input_value,
     T1 = df1['decimal_day_of_year']
     sst1 = df1['t_sea_snake']
     wspd1 = df1['wspd_sonic']
+    fn1 = df1['original_file_name']
 
     fig.data=[]
 
-    cruise_track = create_cruise_track_trace(X.values, Y.values) # Cruise track will always be full track.
+    cruise_track = create_cruise_track_trace(X.values, Y.values, fn1.values) # Cruise track will always be full track.
     if color_by_variable == 'SST':
         data_markers = create_data_markers_trace(X1, Y1, T1, sst1, 'SST [C]')
     else:
