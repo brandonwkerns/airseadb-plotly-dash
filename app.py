@@ -55,7 +55,7 @@ Y = df['lat']
 T = df['decimal_day_of_year']
 sst = df['t_sea_snake']
 wspd = df['wspd_sonic']
-fn = df['original_file_name']
+fn0 = df['original_file_name']
 
 ##
 ## 1.2. Plot Map
@@ -83,8 +83,8 @@ fig.update_layout(
 ## 1.3. Add the data to the map.
 ##
 
-cruise_track = create_cruise_track_trace(X.values, Y.values, fn.values)
-data_markers = create_data_markers_trace(X, Y, T, sst, 'SST [C]', fn.values)
+cruise_track = create_cruise_track_trace(X.values, Y.values, fn0.values)
+data_markers = create_data_markers_trace(X, Y, T, sst, 'SST [C]', fn0.values)
 
 for ct in cruise_track:
     fig.add_trace(ct)
