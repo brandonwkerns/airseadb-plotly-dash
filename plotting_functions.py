@@ -77,6 +77,19 @@ def create_data_markers_trace(lon, lat, T, Z, label, fn, skip=10):
                     showlegend=False)
 
 
+def add_ndbc():
+
+    fn = 'data/activestations.xml'
+    df = pd.read_xml(fn)
+    # df = df[df['met'] != 'n'] # Tried to subset by met, but no success.
+
+    marker_sizes =  10+0.0*df['lon'].values
+    marker_symbols =  ["star" for x in range(len(df['lon']))]
+    return go.Scattermapbox(lon=df['lon'].values, lat=df['lat'].values, text=df['name'].values,
+                            marker = {'size': marker_sizes, 'symbol': marker_symbols},
+                            hovertemplate = '%{text}<extra></extra>',)
+
+
 def add_grid_lines(fig, dx=5, width=0.3, color='grey'):
     for y in np.arange(-80,80+dx,dx):
         fig.add_trace(go.Scattermapbox(lon=np.array([0,360]),lat=np.array([y,y]),

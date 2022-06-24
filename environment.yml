@@ -18,6 +18,7 @@ dependencies:
   - basemap
   - basemap-data-hires
   - colorcet
+  - lxml
   - ipython
   - gunicorn
   - httplib2

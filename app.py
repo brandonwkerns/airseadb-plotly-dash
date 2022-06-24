@@ -89,6 +89,8 @@ for ct in cruise_track:
     fig.add_trace(ct)
 fig.add_trace(data_markers)
 
+fig.add_trace(add_ndbc())
+
 ##
 ## 1.4. Final formatting steps
 ##
@@ -230,6 +232,7 @@ def update_plot_with_selected_values(min_sst_input_value, max_sst_input_value,
         fig.add_trace(ct)
     fig.add_trace(data_markers)
 
+    fig.add_trace(add_ndbc())
     add_grid_lines(fig, dx=10)
 
     return [fig, 'N = {} observations. '.format(len(df1))]
