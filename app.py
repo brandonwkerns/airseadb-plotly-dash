@@ -112,7 +112,7 @@ banner = html.Div([
 query_section = html.Div([
     html.H2('Query Data', className='section-header'),
     html.Label('Cruises:'),
-    dcc.Dropdown(['DYNAMO (2011)', 'AEROSE (2006)'], multi=True, value=['DYNAMO (2011)',],style={'backgroundColor':'#ffffff'}),
+    dcc.Dropdown(['AEROSE (2006)', 'ATOMIC (2020)', 'CALNEX (2010)', 'DYNAMO (2011)', 'JASMINE (1999)', 'NAURU (1999)', 'PACS (1999, Fall)', 'PACS (2020, Spring)', 'PISTON (2019)', 'PISTON_MISOBOB_2018'], multi=True, value=['DYNAMO (2011)',],style={'backgroundColor':'#ffffff'}),
     html.Label('Color by:'),
     dcc.RadioItems(['SST','Wind Speed'], value='SST', id='color-by-variable'),
     html.Label('Subset by:'),
