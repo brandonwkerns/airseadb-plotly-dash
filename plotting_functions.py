@@ -71,7 +71,7 @@ def create_data_markers_trace(lon, lat, T, Z, label, fn, skip=10):
 
     return go.Scattermapbox(lon=lon[::skip], lat=lat[::skip],
                     marker=dict(color=Z[::skip], cmin=cmin, cmax=cmax, colorscale=cmap,
-                        colorbar=dict(len=0.6, title=label, y=0.1, yanchor='bottom', x=0.99, xanchor='right',bgcolor=color_light_2)),
+                        colorbar=dict(len=0.6, title=label, y=0.99, yanchor='top', x=0.99, xanchor='right',bgcolor=color_light_2)),
                     hovertemplate = '%{text}<br>lon: %{lon:.2f}<br>lat: %{lat:.2f}<br>'+label+': %{marker.color:.2f}<extra></extra>',
                     text= campaign_names[::skip],
                     showlegend=False)
@@ -80,12 +80,12 @@ def create_data_markers_trace(lon, lat, T, Z, label, fn, skip=10):
 def add_grid_lines(fig, dx=5, width=0.3, color='grey'):
     for y in np.arange(-80,80+dx,dx):
         fig.add_trace(go.Scattermapbox(lon=np.array([0,360]),lat=np.array([y,y]),
-                        mode='lines', line={'width':width, 'color':color}, showlegend=False, legendgroup='llgrid'))
+                        mode='lines', line={'width':width, 'color':color}, showlegend=False, legendgroup='llgrid',hoverinfo='skip'))
     for y in [0.0,]:
         fig.add_trace(go.Scattermapbox(lon=np.array([0,360]),lat=np.array([y,y]),
-                        mode='lines', line={'width':width, 'color':color}, showlegend=False, legendgroup='llgrid', name='Lat/Lon Grid'))
+                        mode='lines', line={'width':width, 'color':color}, showlegend=False, legendgroup='llgrid',hoverinfo='skip'))
     for x in np.arange(0,360+dx,dx):
         fig.add_trace(go.Scattermapbox(lon=np.array([x,x]),lat=np.array([-90,90]),
-                        mode='lines', line={'width':width, 'color':color}, showlegend=False, legendgroup='llgrid'))
+                        mode='lines', line={'width':width, 'color':color}, showlegend=False, legendgroup='llgrid',hoverinfo='skip'))
 
 
