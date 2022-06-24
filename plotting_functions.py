@@ -54,7 +54,10 @@ def create_cruise_track_trace(lon, lat, fn):
     return tracks
 
 
-def create_data_markers_trace(lon, lat, T, Z, label, skip=10):
+def create_data_markers_trace(lon, lat, T, Z, label, fn, skip=10):
+
+    ## Figure out field campaign name.
+    campaign_name = fn[0].split('/')[0]
 
     cmin,cmax = get_cbar_range(Z)
 
@@ -70,7 +73,7 @@ def create_data_markers_trace(lon, lat, T, Z, label, skip=10):
                         colorbar=dict(len=0.6, title=label, y=0.1, yanchor='bottom', x=0.99, xanchor='right',bgcolor=color_light_2)),
                     hovertemplate = '%{text}<br>lon: %{lon:.2f}<br>lat: %{lat:.2f}<br>'+label+': %{marker.color:.2f}',
                     text=T,
-                    name = 'Cruise Data', showlegend=True)
+                    name = campaign_name, showlegend=True)
 
 
 def add_grid_lines(fig, dx=5, width=0.3, color='grey'):

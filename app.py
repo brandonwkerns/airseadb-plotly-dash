@@ -84,7 +84,7 @@ fig.update_layout(
 ##
 
 cruise_track = create_cruise_track_trace(X.values, Y.values, fn.values)
-data_markers = create_data_markers_trace(X, Y, T, sst, 'SST [C]')
+data_markers = create_data_markers_trace(X, Y, T, sst, 'SST [C]', fn.values)
 
 for ct in cruise_track:
     fig.add_trace(ct)
@@ -223,9 +223,9 @@ def update_plot_with_selected_values(min_sst_input_value, max_sst_input_value,
 
     cruise_track = create_cruise_track_trace(X.values, Y.values, fn1.values) # Cruise track will always be full track.
     if color_by_variable == 'SST':
-        data_markers = create_data_markers_trace(X1, Y1, T1, sst1, 'SST [C]')
+        data_markers = create_data_markers_trace(X1, Y1, T1, sst1, 'SST [C]', fn1.values)
     else:
-        data_markers = create_data_markers_trace(X1, Y1, T1, wspd1, 'WSPD [m/s]')
+        data_markers = create_data_markers_trace(X1, Y1, T1, wspd1, 'WSPD [m/s]', fn1.values)
 
     for ct in cruise_track:
         fig.add_trace(ct)
