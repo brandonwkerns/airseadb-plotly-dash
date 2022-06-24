@@ -34,7 +34,7 @@ con = sqlite3.connect(fn)
 ## Query the database.
 
 query = '''
-    SELECT lon,lat,t_sea_snake,wspd_sonic,decimal_day_of_year
+    SELECT lon,lat,t_sea_snake,wspd_sonic,decimal_day_of_year,original_file_name
         FROM DATA WHERE t_sea_snake > -999.0
             AND t_sea_snake < 999.0
             AND wspd_sonic > -999.0
@@ -45,7 +45,7 @@ df = pd.read_sql_query(query, con)
 print('Query returned {0:d} observations.'.format(len(df)))
 
 df = df.dropna()
-
+print(df.columns)
 ## Close the database.
 con.close()
 
@@ -55,7 +55,7 @@ Y = df['lat']
 T = df['decimal_day_of_year']
 sst = df['t_sea_snake']
 wspd = df['wspd_sonic']
-
+fn = df['original_file_name']
 
 ##
 ## 1.2. Plot Map
@@ -83,7 +83,7 @@ fig.update_layout(
 ## 1.3. Add the data to the map.
 ##
 
-cruise_track = create_cruise_track_trace(X.values, Y.values)
+cruise_track = create_cruise_track_trace(X.values, Y.values, fn.values)
 data_markers = create_data_markers_trace(X, Y, T, sst, 'SST [C]')
 
 for ct in cruise_track:
@@ -200,7 +200,7 @@ def update_plot_with_selected_values(min_sst_input_value, max_sst_input_value,
     con1 = sqlite3.connect(fn)
     ## Query the database.
     query = '''
-        SELECT lon,lat,t_sea_snake,wspd_sonic,decimal_day_of_year
+        SELECT lon,lat,t_sea_snake,wspd_sonic,decimal_day_of_year,original_file_name
             FROM DATA WHERE t_sea_snake > {0}
                 AND t_sea_snake < {1}
                 AND wspd_sonic > {2}
