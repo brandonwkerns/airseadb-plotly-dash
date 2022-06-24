@@ -83,11 +83,11 @@ def add_ndbc():
     df = pd.read_xml(fn)
     # df = df[df['met'] != 'n'] # Tried to subset by met, but no success.
 
-    marker_sizes =  10+0.0*df['lon'].values
+    marker_sizes =  7+0.0*df['lon'].values
     marker_symbols =  ["star" for x in range(len(df['lon']))]
     return go.Scattermapbox(lon=df['lon'].values, lat=df['lat'].values, text=df['name'].values,
-                            marker = {'size': marker_sizes, 'symbol': marker_symbols},
-                            hovertemplate = '%{text}<extra></extra>',)
+                            marker = {'size': marker_sizes, 'symbol': marker_symbols, 'allowoverlap':True},
+                            hovertemplate = '%{text}<extra></extra>')
 
 
 def add_grid_lines(fig, dx=5, width=0.3, color='grey'):
