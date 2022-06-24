@@ -45,7 +45,6 @@ df = pd.read_sql_query(query, con)
 print('Query returned {0:d} observations.'.format(len(df)))
 
 df = df.dropna()
-print(df.columns)
 ## Close the database.
 con.close()
 

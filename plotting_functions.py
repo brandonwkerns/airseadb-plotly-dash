@@ -58,6 +58,7 @@ def create_data_markers_trace(lon, lat, T, Z, label, fn, skip=10):
 
     ## Figure out field campaign name.
     campaign_name = fn[0].split('/')[0]
+    campaign_names = [x.split('/')[0] for x in fn]
 
     cmin,cmax = get_cbar_range(Z)
 
@@ -71,9 +72,9 @@ def create_data_markers_trace(lon, lat, T, Z, label, fn, skip=10):
     return go.Scattermapbox(lon=lon[::skip], lat=lat[::skip],
                     marker=dict(color=Z[::skip], cmin=cmin, cmax=cmax, colorscale=cmap,
                         colorbar=dict(len=0.6, title=label, y=0.1, yanchor='bottom', x=0.99, xanchor='right',bgcolor=color_light_2)),
-                    hovertemplate = '%{text}<br>lon: %{lon:.2f}<br>lat: %{lat:.2f}<br>'+label+': %{marker.color:.2f}',
-                    text=T,
-                    name = campaign_name, showlegend=False)
+                    hovertemplate = '%{text}<br>lon: %{lon:.2f}<br>lat: %{lat:.2f}<br>'+label+': %{marker.color:.2f}<extra></extra>',
+                    text= campaign_names[::skip],
+                    showlegend=False)
 
 
 def add_grid_lines(fig, dx=5, width=0.3, color='grey'):
