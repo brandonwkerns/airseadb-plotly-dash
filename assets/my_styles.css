@@ -64,7 +64,7 @@ body {background-color: #101125;}
     width: 200px;
     position: absolute;
     top: 150px;
-    left: 70px;
+    left: 50px;
     z-index: 1;
     /* border: 2px solid red; */
     border-radius: var(--panel-border-radius);
@@ -75,9 +75,8 @@ body {background-color: #101125;}
     opacity: 0.75;
     width: 200px;
     position: absolute;
-    top: 150px;
-    left: 50%;
-    transform: translate(-50%, 0);
+    top: 550px;
+    left: 50px;
     z-index: 1;
     border-radius: var(--panel-border-radius);
     /* border: 2px solid red; */
@@ -85,9 +84,9 @@ body {background-color: #101125;}
 
 
 #map-section {
-    width: 95%;
-    transform: translate(2.5%, 0);
-    left: 2.5%;
+    position: absolute;
+    left: 250px;
+    right: 20px;
     height=70%;
     max-height: 800px;
     /* border: 1px solid white; */
