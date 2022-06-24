@@ -105,12 +105,12 @@ add_grid_lines(fig, dx=10)
 
 banner = html.Div([
         html.H1('AirSeaDB', className='banner-header'),
-        html.P('A global, searchable, extendable air-sea flux database.', className='banner-header'),
+        html.P('A global, searchable, extendable air-sea flux database. (NOTE: Field campaign and date range selection not yet working.)', className='banner-header'),
     ], id='banner')
 
 query_section = html.Div([
     html.H2('Query Data', className='section-header'),
-    html.Label('Cruises:'),
+    html.Label('Campaigns:'),
     dcc.Dropdown(['AEROSE (2006)', 'ATOMIC (2020)', 'CALNEX (2010)', 'DYNAMO (2011)', 'JASMINE (1999)', 'NAURU (1999)', 'PACS (1999, Fall)', 'PACS (2020, Spring)', 'PISTON (2019)', 'PISTON_MISOBOB_2018'], multi=True, value=['DYNAMO (2011)',],style={'backgroundColor':'#ffffff'}),
     html.Label('Color by:'),
     dcc.RadioItems(['SST','Wind Speed'], value='SST', id='color-by-variable'),

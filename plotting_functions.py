@@ -83,7 +83,7 @@ def add_grid_lines(fig, dx=5, width=0.3, color='grey'):
                         mode='lines', line={'width':width, 'color':color}, showlegend=False, legendgroup='llgrid'))
     for y in [0.0,]:
         fig.add_trace(go.Scattermapbox(lon=np.array([0,360]),lat=np.array([y,y]),
-                        mode='lines', line={'width':width, 'color':color}, showlegend=True, legendgroup='llgrid', name='Lat/Lon Grid'))
+                        mode='lines', line={'width':width, 'color':color}, showlegend=False, legendgroup='llgrid', name='Lat/Lon Grid'))
     for x in np.arange(0,360+dx,dx):
         fig.add_trace(go.Scattermapbox(lon=np.array([x,x]),lat=np.array([-90,90]),
                         mode='lines', line={'width':width, 'color':color}, showlegend=False, legendgroup='llgrid'))
