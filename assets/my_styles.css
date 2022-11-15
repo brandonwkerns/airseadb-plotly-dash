@@ -91,3 +91,14 @@ body {background-color: #101125;}
     max-height: 800px;
     /* border: 1px solid white; */
 }
+
+
+#plotting-section {
+    position: absolute;
+    left: 250px;
+    right: 20px;
+    top: 910px;
+    height=70%;
+    max-height: 800px;
+    /* border: 1px solid white; */
+}

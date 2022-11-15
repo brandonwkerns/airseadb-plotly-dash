@@ -5,21 +5,11 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3
+  - python=3.7
   - numpy
   - cftime
   - pandas
-  - xarray
-  - scipy
   - plotly
   - dash
   - dash-bootstrap-components
-  - matplotlib
-  - basemap
-  - basemap-data-hires
   - colorcet
-  - lxml
-  - ipython
-  - gunicorn
-  - httplib2
-  
