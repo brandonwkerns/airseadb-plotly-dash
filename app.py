@@ -282,7 +282,7 @@ banner = html.Div([
 
 query_section = html.Div([
     html.H2('Query Data', className='section-header'),
-    html.Label('Campaigns:'),
+    html.Label('Placeholder', id = 'campaigns-select-label'),
     ## Dropdown initially has all the field campaigns/programs selected.
     dcc.Dropdown(dropdown_programs_list, multi=True, value=dropdown_programs_list,
         style={'backgroundColor':'#ffffff'}, id = 'selected-programs',), #['AEROSE (2006)', 'ATOMIC (2020)', 'CALNEX (2010)', 'DYNAMO (2011)', 'JASMINE (1999)', 'NAURU (1999)', 'PACS (1999, Fall)', 'PACS (2020, Spring)', 'PISTON (2019)', 'PISTON_MISOBOB_2018'], multi=True, value=['DYNAMO (2011)',],style={'backgroundColor':'#ffffff'}),
@@ -326,7 +326,8 @@ query_section = html.Div([
 
 report_and_download_section = html.Div([
     html.H2('Download Data', className='section-header'),
-    html.Label('N = {} observations. '.format(len(df)), id='obs-count'),
+    # html.Label('N = {} observations. '.format(len(df)), id='obs-count'),
+    html.Label('Placeholder', id='obs-count'),
     html.Button("Download csv", id="btn-download-txt",style={'backgroundColor':'#ff6633'}),
     dcc.Download(id="download-text"),
 ], id='report-and-download-section')
@@ -377,17 +378,19 @@ app.layout = html.Div(children=[
     Output(component_id='map-with-data', component_property='figure'),
     Output(component_id='scatter-plot-with-data', component_property='figure'),
     Output(component_id='obs-count', component_property='children'),
+    Output(component_id='campaigns-select-label', component_property='children'),
     Input(component_id='date-picker-range', component_property='start_date'),
     Input(component_id='date-picker-range', component_property='end_date'),
     Input(component_id='selected-programs', component_property='value'),
+    Input(component_id='selected-programs', component_property='options'),
     Input(component_id='min-sst-input', component_property='value'),
     Input(component_id='max-sst-input', component_property='value'),
     Input(component_id='min-wspd-input', component_property='value'),
     Input(component_id='max-wspd-input', component_property='value'),
     Input(component_id='color-by-variable', component_property='value'),
-    prevent_initial_call=True,
+    prevent_initial_call=False, #True,
 )
-def update_plot_with_selected_values(start_date, end_date, selected_programs, min_sst_input_value, max_sst_input_value,
+def update_plot_with_selected_values(start_date, end_date, selected_programs, selected_program_options, min_sst_input_value, max_sst_input_value,
                             min_wspd_input_value, max_wspd_input_value, color_by_variable):
 
     if len(selected_programs) == 0:
@@ -443,8 +446,12 @@ def update_plot_with_selected_values(start_date, end_date, selected_programs, mi
 
     fig_scatter.update_traces(x=sst1, y=wspd1)
 
+    ## Campaigns label string.
+    n_total_campaigns = len(selected_program_options)
+    campaigns_label_str = 'Campaigns ({0} of {1} selected)'.format(len(selected_programs), n_total_campaigns)
+
     ## The 3 outputs correspond with the 3 Output entries in the callback above.
-    return [fig, fig_scatter, 'N = {} observations. '.format(len(df1))]
+    return [fig, fig_scatter, 'N = {} observations. '.format(len(df1)), campaigns_label_str]
 
 
 @app.callback(
