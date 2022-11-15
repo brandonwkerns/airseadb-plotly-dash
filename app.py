@@ -285,7 +285,9 @@ query_section = html.Div([
     html.Label('Placeholder', id = 'campaigns-select-label'),
     ## Dropdown initially has all the field campaigns/programs selected.
     dcc.Dropdown(dropdown_programs_list, multi=True, value=dropdown_programs_list,
-        style={'backgroundColor':'#ffffff'}, id = 'selected-programs',), #['AEROSE (2006)', 'ATOMIC (2020)', 'CALNEX (2010)', 'DYNAMO (2011)', 'JASMINE (1999)', 'NAURU (1999)', 'PACS (1999, Fall)', 'PACS (2020, Spring)', 'PISTON (2019)', 'PISTON_MISOBOB_2018'], multi=True, value=['DYNAMO (2011)',],style={'backgroundColor':'#ffffff'}),
+        placeholder = 'Select One Or More.',
+        style={'backgroundColor':'#ffffff'}, id = 'selected-programs',
+        optionHeight=30, maxHeight=150),
     html.Label('Color by:'),
     dcc.RadioItems(['SST','Wind Speed'], value='SST', id='color-by-variable'),
     html.Label('Subset by:'),
