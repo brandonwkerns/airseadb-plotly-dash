@@ -140,12 +140,6 @@ else:
 ## Generate the application for WSGI.
 ## "server" gets imported as "application" for WSGI, in app.wsgi.
 server = app.server
-
-# data_dir = '/var/www/FLASKAPPS/airseadb/data'
-# html_out_dir = '/home/orca/bkerns/public_html/projects/noaa_air_sea_flux/report_feb_2022/interactive_plots'
-
-cruise_list = ['dynamo_2011',]
-
 mapbox_access_token = 'pk.eyJ1IjoiYnJhbmRvbndrZXJucyIsImEiOiJja3ZyOGNlZmcydTdrMm5xZ3d4ZWNlZXZpIn0.OkA0r6XFSY-Dx0bk7UPPZQ'
 
 ############### 1. The map and data visualization ###################
@@ -153,10 +147,6 @@ mapbox_access_token = 'pk.eyJ1IjoiYnJhbmRvbndrZXJucyIsImEiOiJja3ZyOGNlZmcydTdrMm
 ##
 ## 1.1. Get the data (or subset of data) from AirSeaDB
 ##
-
-## Connect to SQLite database
-# fn = (data_dir + '/AirSeaDB.sqlite')
-# con = sqlite3.connect(fn)
 
 ## Query the database.
 def query_data(db_host, db_name, user, password, query_text, verbose=False):
