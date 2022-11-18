@@ -74,7 +74,7 @@ def create_cruise_track_trace(lon, lat, fn):
     return tracks
 
 
-def create_data_markers_trace(lon, lat, T, Z, label, fn, skip=10):
+def create_data_markers_trace(lon, lat, T, Z, label, fn, skip=1):
 
     ## Figure out field campaign name.
     campaign_name = fn[0].split('/')[0]
