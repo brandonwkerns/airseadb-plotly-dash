@@ -16,9 +16,6 @@ body {background-color: #101125;}
     text-decoration: underline
 }
 
-
-/*input[type='text'].input-field, textarea {background-color: #ff6633;} */
-
 /* Date range picker */
 
 .DateRangePickerInput {
@@ -33,7 +30,7 @@ body {background-color: #101125;}
 .DateInput_input {
     font-size: 14px;
     line-height: 15px;
-    width: 80%;
+    /* width: 80%; */
     background-color: #ffffff;
 }
 
@@ -52,53 +49,29 @@ body {background-color: #101125;}
 
 
 #banner {
-    width: 100%;
-    /* transform: translate(2.5%, 0); */
     height: 100px;
-    /* border: 1px solid white; */
     background-color: var(--color_dark_2);
 }
 #query-section {
     background-color: var(--color_light_2);
     opacity: 0.75;
-    width: 200px;
-    position: absolute;
-    top: 150px;
-    left: 50px;
     z-index: 1;
-    /* border: 2px solid red; */
     border-radius: var(--panel-border-radius);
 }
 
 #report-and-download-section {
     background-color: var(--color_light_2);
     opacity: 0.75;
-    width: 200px;
-    position: absolute;
-    top: 550px;
-    left: 50px;
     z-index: 1;
     border-radius: var(--panel-border-radius);
-    /* border: 2px solid red; */
 }
 
 
 #map-section {
-    position: absolute;
-    left: 250px;
-    right: 20px;
-    height=70%;
-    max-height: 800px;
-    /* border: 1px solid white; */
+    /* border-radius: var(--panel-border-radius); */
 }
 
 
 #plotting-section {
-    position: absolute;
-    left: 250px;
-    right: 20px;
-    top: 910px;
-    height=70%;
-    max-height: 800px;
-    /* border: 1px solid white; */
+    /* border-radius: var(--panel-border-radius); */
 }

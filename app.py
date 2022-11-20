@@ -13,6 +13,7 @@ import plotly.graph_objects as go
 import colorcet as cc
 import psycopg2
 from dash import Dash, html, dcc, Input, Output, ctx
+import dash_bootstrap_components as dbc
 
 import sys
 #print(sys.version)
@@ -131,10 +132,14 @@ def add_grid_lines(fig, dx=5, width=0.3, color='grey'):
 
 if __name__ == '__main__':
     ## Use this for development.
-    app = Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}], requests_pathname_prefix='/') 
+    app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP],
+        meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
+        requests_pathname_prefix='/') 
 else:
     ## Use this for deployment on orca.
-    app = Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}], requests_pathname_prefix='/airseadb/') 
+    app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP],
+        meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
+        requests_pathname_prefix='/airseadb/') 
 
 
 ## Generate the application for WSGI.
@@ -326,15 +331,6 @@ query_section = html.Div([
 ], id='query-section')
 
 
-report_and_download_section = html.Div([
-    html.H2('Download Data', className='section-header'),
-    # html.Label('N = {} observations. '.format(len(df)), id='obs-count'),
-    html.Label('Placeholder', id='obs-count'),
-    html.Button("Download csv", id="btn-download-txt",style={'backgroundColor':'#ff6633'}),
-    dcc.Download(id="download-text"),
-], id='report-and-download-section')
-
-
 map_section = html.Div([
     dcc.Loading(
         id="ls-loading-map",
@@ -346,6 +342,18 @@ map_section = html.Div([
         type="circle",
     )
 ], id='map-section')
+
+
+
+
+
+report_and_download_section = html.Div([
+    html.H2('Download Data', className='section-header'),
+    # html.Label('N = {} observations. '.format(len(df)), id='obs-count'),
+    html.Label('Placeholder', id='obs-count'),
+    html.Button("Download csv", id="btn-download-txt",style={'backgroundColor':'#ff6633'}),
+    dcc.Download(id="download-text"),
+], id='report-and-download-section')
 
 
 plotting_section = html.Div([
@@ -365,13 +373,11 @@ plotting_section = html.Div([
 ## 2.2. Put the Divs together into the full web page.
 ##
 
-app.layout = html.Div(children=[
-    banner,
-    query_section,
-    report_and_download_section,
-    map_section,
-    plotting_section,
-])
+app.layout = dbc.Container(children=[
+    dbc.Row(dbc.Col(banner, md=12)),
+    dbc.Row([dbc.Col(query_section, md=2), dbc.Col(map_section, md=10)]),
+    dbc.Row([dbc.Col(report_and_download_section, md=2), dbc.Col(plotting_section, md=6)]),
+], fluid=True)
 
 
 ############### 3. Interactive functionality (callbacks) ###################
