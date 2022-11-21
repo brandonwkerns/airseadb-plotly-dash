@@ -66,12 +66,12 @@ body {background-color: #101125;}
     border-radius: var(--panel-border-radius);
 }
 
-
-#map-section {
-    /* border-radius: var(--panel-border-radius); */
+#selected-programs {
+    z-index: 2;
 }
 
+#map-section {
+}
 
 #plotting-section {
-    /* border-radius: var(--panel-border-radius); */
 }
