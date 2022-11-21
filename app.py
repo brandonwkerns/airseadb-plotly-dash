@@ -12,7 +12,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import colorcet as cc
 import psycopg2
-from dash import Dash, html, dcc, Input, Output, ctx
+from dash import Dash, html, dcc, Input, Output, State, ctx
 import dash_bootstrap_components as dbc
 
 import sys
@@ -276,13 +276,23 @@ banner = html.Div([
     ], id='banner')
 
 query_section = html.Div([
-    html.H2('Query Data', className='section-header'),
-    html.Label('Placeholder', id = 'campaigns-select-label'),
+    html.H2('Select Data', className='section-header'),
+    html.Label('Campaigns', id = 'campaigns-select-label'),
     ## Dropdown initially has all the field campaigns/programs selected.
-    dcc.Dropdown(dropdown_programs_list, multi=True, value=dropdown_programs_list,
+    html.Div(
+        dbc.Button(
+                "Expand List",
+                id="collapse-button-programs",
+                className="mb-3",
+                color="primary",
+                n_clicks=0,
+            ),
+        className="d-grid gap-2"),
+    dbc.Collapse(dcc.Dropdown(dropdown_programs_list, multi=True, value=dropdown_programs_list,
         placeholder = 'Select One Or More.',
         style={'backgroundColor':'#ffffff'}, id = 'selected-programs',
-        optionHeight=30, maxHeight=150),
+        optionHeight=30, maxHeight=150), id="collapse-programs", is_open=False,),
+    html.Br(),
     html.Label('Color by:'),
     dcc.RadioItems(['SST','Wind Speed'], value='SST', id='color-by-variable'),
     html.Label('Subset by:'),
@@ -372,6 +382,23 @@ app.layout = dbc.Container(children=[
 
 ############### 3. Interactive functionality (callbacks) ###################
 
+## Button callbacks for the Programs and Field Campaigns list.
+@app.callback(
+    Output("collapse-programs", "is_open"),
+    Output("collapse-button-programs", "children"),
+    [Input("collapse-button-programs", "n_clicks")],
+    [State("collapse-programs", "is_open")],
+)
+def toggle_collapse(n, is_open):
+    ## List starts collapsed, n = 0.
+    ## For odd n, it will be expanded.
+    ## For even n, it will be collapsed. 
+    if n % 2 == 1:
+        return (True, 'Collapse List')
+    else:
+        return (False, 'Expand List')
+
+
 @app.callback(
     Output(component_id='map-with-data', component_property='figure'),
     Output(component_id='scatter-plot-with-data', component_property='figure'),
@@ -446,7 +473,7 @@ def update_plot_with_selected_values(start_date, end_date, selected_programs, se
 
     ## Campaigns label string.
     n_total_campaigns = len(selected_program_options)
-    campaigns_label_str = 'Campaigns ({0} of {1} selected)'.format(len(selected_programs), n_total_campaigns)
+    campaigns_label_str = 'Campaigns ({0} of {1})'.format(len(selected_programs), n_total_campaigns)
 
     ## The 3 outputs correspond with the 3 Output entries in the callback above.
     return [fig, fig_scatter, 'N = {} observations. '.format(len(df1)), campaigns_label_str]
