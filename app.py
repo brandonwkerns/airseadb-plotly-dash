@@ -54,7 +54,7 @@ def backward_diff(x):
     return dx
 
 
-def create_cruise_track_trace(lon, lat, fn):
+def create_cruise_track_trace(lon, lat, fn, skip=1):
 
     ## Figure out field campaign name.
     campaign_name = fn[0].split('/')[0]
@@ -67,10 +67,10 @@ def create_cruise_track_trace(lon, lat, fn):
 
     tracks = []
     for ii in range(len(break_point_indices)-1):
-        tracks += [go.Scattermapbox(lon=lon[break_point_indices[ii]:break_point_indices[ii+1]],
-                        lat=lat[break_point_indices[ii]:break_point_indices[ii+1]],
+        tracks += [go.Scattermapbox(lon=lon[break_point_indices[ii]:break_point_indices[ii+1]:skip],
+                        lat=lat[break_point_indices[ii]:break_point_indices[ii+1]:skip],
                         mode='lines', line={'width':2.0, 'color':'white'}, name=campaign_name,
-                        showlegend=False, hoverinfo='skip')]
+                        showlegend=False, hoverinfo='skip', uid='ship_tracks')]
 
     return tracks
 
@@ -91,11 +91,14 @@ def create_data_markers_trace(lon, lat, T, Z, label, fn, skip=1):
         cmap = cc.CET_R1
 
     return go.Scattermapbox(lon=lon[::skip], lat=lat[::skip],
-                    marker=dict(color=Z[::skip], cmin=cmin, cmax=cmax, colorscale=cmap,
-                        colorbar=dict(len=0.6, title=label, y=0.99, yanchor='top', x=0.99, xanchor='right',bgcolor=color_light_2)),
+                    marker=dict(color=Z[::skip], cmin=cmin, cmax=cmax, colorscale=cmap, allowoverlap=False,
+                        colorbar=dict(len=0.6, title=label, y=0.99, yanchor='top', x=0.99,
+                                        xanchor='right',bgcolor=color_light_2),
+                        ),
                     hovertemplate = '%{text}<br>lon: %{lon:.2f}<br>lat: %{lat:.2f}<br>'+label+': %{marker.color:.2f}<extra></extra>',
                     text= campaign_names[::skip],
-                    showlegend=False)
+                    showlegend=False,
+                    uid='ship_data')
 
 
 def add_ndbc():
@@ -108,19 +111,22 @@ def add_ndbc():
     marker_symbols =  ["star" for x in range(len(df['lon']))]
     return go.Scattermapbox(lon=df['lon'].values, lat=df['lat'].values, text=df['name'].values,
                             marker = {'size': marker_sizes, 'symbol': marker_symbols, 'allowoverlap':True},
-                            hovertemplate = '%{text}<extra></extra>')
+                            uid='ndbc_markers', hovertemplate = '%{text}<extra></extra>')
 
 
 def add_grid_lines(fig, dx=5, width=0.3, color='grey'):
     for y in np.arange(-80,80+dx,dx):
         fig.add_trace(go.Scattermapbox(lon=np.array([0,360]),lat=np.array([y,y]),
-                        mode='lines', line={'width':width, 'color':color}, showlegend=False, legendgroup='llgrid',hoverinfo='skip'))
+                        mode='lines', line={'width':width, 'color':color}, showlegend=False, legendgroup='llgrid',hoverinfo='skip', uid='meridians')
+                        )
     for y in [0.0,]:
         fig.add_trace(go.Scattermapbox(lon=np.array([0,360]),lat=np.array([y,y]),
-                        mode='lines', line={'width':width, 'color':color}, showlegend=False, legendgroup='llgrid',hoverinfo='skip'))
+                        mode='lines', line={'width':width, 'color':color}, showlegend=False, legendgroup='llgrid',hoverinfo='skip',uid='equator')
+                        )
     for x in np.arange(0,360+dx,dx):
         fig.add_trace(go.Scattermapbox(lon=np.array([x,x]),lat=np.array([-90,90]),
-                        mode='lines', line={'width':width, 'color':color}, showlegend=False, legendgroup='llgrid',hoverinfo='skip'))
+                        mode='lines', line={'width':width, 'color':color}, showlegend=False, legendgroup='llgrid',hoverinfo='skip',uid='parallels')
+                        )
 
 
 ## In order to run as WSGI under Apache,
@@ -174,7 +180,7 @@ def query_data(db_host, db_name, user, password, query_text, verbose=False):
 
 ## Initially, load all the points into memory.
 query = '''
-    SELECT datetime,lon,lat,t_sea_snake,wspd_psd,decimal_day_of_year,original_file_names
+    SELECT datetime,lon,lat,t_sea_snake,wspd_psd,decimal_day_of_year,concat("program", ' (', "years", ')') AS "program_year"
         FROM ship_data WHERE t_sea_snake > -999.0
             AND t_sea_snake < 999.0
             AND wspd_psd > -999.0
@@ -188,11 +194,11 @@ Y = df['lat']
 T = df['decimal_day_of_year']
 sst = df['t_sea_snake']
 wspd = df['wspd_psd']
-fn0 = df['original_file_names']
+program_year = df['program_year']
 
 min_date0 = df['datetime'].min()
 max_date0 = df['datetime'].max()
-print(min_date0, max_date0)
+# print(min_date0, max_date0)
 
 ##
 ## 1.2. Plot Map
@@ -219,17 +225,20 @@ fig.update_layout(
 ##
 ## 1.3. Add the data to the map.
 ##
+## Only include the "background" cruise track traces here?
+## This is not needed. Data is added to the map when the update function is called upon initial app load.
+##
 
-cruise_track = create_cruise_track_trace(X.values, Y.values, fn0.values)
-data_markers = create_data_markers_trace(X, Y, T, sst, 'SST [C]', fn0.values)
-
+## Skip ship tracks to improve loading time.
+## Plotting every 100 seems to be OK for zoom level 1. Every 1000 eliminates most of the detail.
+## TODO: Check if skip value is OK for finer zooms.
+cruise_track = create_cruise_track_trace(X.values, Y.values, program_year.values, skip=100) # Cruise track will always be full track.
 for ct in cruise_track:
     fig.add_trace(ct)
-fig.add_trace(data_markers)
 
+
+## Add NDBC buoy markers.
 fig.add_trace(add_ndbc())
-
-
 
 ##
 ## 1.3.5. Add data to scatter plot.
@@ -429,11 +438,11 @@ def update_plot_with_selected_values(start_date, end_date, selected_programs, se
                 selected_programs_in += ('\''+x+'\'')
 
         selected_programs_in += ')'
-    print(selected_programs_in)
+    # print(selected_programs_in)
 
     ## Query the database.
     query = '''
-        SELECT datetime,lon,lat,t_sea_snake,wspd_psd,decimal_day_of_year,original_file_names,concat("program", ' (', "years", ')') AS "program_year"
+        SELECT datetime,lon,lat,t_sea_snake,wspd_psd,decimal_day_of_year,concat("program", ' (', "years", ')') AS "program_year"
             FROM ship_data WHERE t_sea_snake > {0}
                 AND t_sea_snake < {1}
                 AND wspd_psd > {2}
@@ -441,7 +450,7 @@ def update_plot_with_selected_values(start_date, end_date, selected_programs, se
                 AND datetime BETWEEN '{4}' AND '{5}'
                 AND concat("program", ' (', "years", ')') IN {6}
         '''.format(min_sst_input_value, max_sst_input_value, min_wspd_input_value, max_wspd_input_value, start_date, end_date,selected_programs_in)
-    print(query)
+    # print(query)
     df1 = query_data('localhost','airseadb','bkerns','huracan5',query,verbose=True)
 
     X1 = df1['lon']
@@ -450,24 +459,30 @@ def update_plot_with_selected_values(start_date, end_date, selected_programs, se
     T1 = df1['decimal_day_of_year']
     sst1 = df1['t_sea_snake']
     wspd1 = df1['wspd_psd']
-    fn1 = df1['original_file_names']
+    program_year = df1['program_year']
 
-    fig.data=[]
+    ## Reset the traces with uid = 'ship_data'
+    idx_ship_data = [x for x in range(len(fig.data)) if fig.data[x]['uid'] == 'ship_data']
+    print(idx_ship_data)
+
+    if len(idx_ship_data) > 0:
+        #fig.data.pop(idx_ship_data[0])
+        fig['data'] = tuple(fig['data'][x] for x in range(len(fig['data'])) if not x in idx_ship_data)
 
     if len(df1) > 0:
 
-        cruise_track = create_cruise_track_trace(X.values, Y.values, fn1.values) # Cruise track will always be full track.
         if color_by_variable == 'SST':
-            data_markers = create_data_markers_trace(X1, Y1, T1, sst1, 'SST [C]', fn1.values)
+            data_markers = create_data_markers_trace(X1, Y1, T1, sst1, 'SST [C]', program_year.values)
         else:
-            data_markers = create_data_markers_trace(X1, Y1, T1, wspd1, 'WSPD [m/s]', fn1.values)
+            data_markers = create_data_markers_trace(X1, Y1, T1, wspd1, 'WSPD [m/s]', program_year.values)
 
-        for ct in cruise_track:
-            fig.add_trace(ct)
         fig.add_trace(data_markers)
 
-    fig.add_trace(add_ndbc())
-    add_grid_lines(fig, dx=10)
+    # fig.add_trace(add_ndbc())
+    # add_grid_lines(fig, dx=10)
+
+    print(fig['data'])
+
 
     fig_scatter.update_traces(x=sst1, y=wspd1)
 
