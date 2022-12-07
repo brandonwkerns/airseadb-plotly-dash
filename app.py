@@ -16,10 +16,11 @@ from dash import Dash, html, dcc, Input, Output, State, ctx
 import dash_bootstrap_components as dbc
 
 import sys
-#print(sys.version)
-#print(sys.prefix)
 
-#from plotting_functions import *  ## Includes color palette.
+import datashader as ds
+from datashader.utils import lnglat_to_meters
+import datashader.transfer_functions as tf
+
 
 
 ## Color Palette ############
@@ -56,49 +57,84 @@ def backward_diff(x):
 
 def create_cruise_track_trace(lon, lat, fn, skip=1):
 
-    ## Figure out field campaign name.
-    campaign_name = fn[0].split('/')[0]
+    coordinates = [[-180, -80],[180,-80],[180,80],[-180,80]]
+    x0, y0 = lnglat_to_meters(coordinates[0][0], coordinates[0][1]) # To web mercartor.
+    x1, y1 = lnglat_to_meters(coordinates[2][0], coordinates[2][1]) # To web mercartor.
+    cvs = ds.Canvas(plot_width=1800, plot_height=800, x_range=[x0,x1], y_range=[y0,y1])
+
+    dff = pd.DataFrame(dict(Lon=lon, Lat=lat))
+    dff.loc[:, 'Easting'], dff.loc[:, 'Northing'] = lnglat_to_meters(dff.Lon,dff.Lat) # To web mercartor.
+    agg = cvs.points(dff, x='Easting', y='Northing', agg=ds.any())
+
+    img = tf.shade(tf.spread(agg,1), cmap=['darkgrey',])[::-1].to_pil()
+
+    # return tracks
+    return img, coordinates
+
+
+def create_cruise_track_labels(lon, lat, labels):
+
+    # skip = 1000
+    labels_list = np.unique(labels)
+    X = []
+    Y = []
+    L = []
+    for this_label in labels_list:
+        idx_this_label = sorted(np.argwhere(labels == this_label))
+        # print((this_label, idx_this_label[0][::skip]))
+        X += [lon[idx_this_label[0][0]]]
+        Y += [lat[idx_this_label[0][0]]]
+        L += [labels[idx_this_label[0][0]]]
+        X += [lon[idx_this_label[-1][0]]]
+        Y += [lat[idx_this_label[-1][0]]]
+        L += [labels[idx_this_label[-1][0]]]
+
 
     ## Find Break Points: Where a new cruise (or cruise leg) has clearly started.
     dlon = backward_diff(lon)
     dlat = backward_diff(lat)
     dlatlon = np.sqrt(np.power(dlon,2) + np.power(dlat,2))
-    break_point_indices = [0] + [x for x in range(len(dlatlon)) if dlatlon[x] > 1.0] + [len(dlatlon)]
+    break_point_indices = [0] + [x for x in range(len(dlatlon)) if dlatlon[x] > 1.0] + [len(dlatlon)-1]
 
-    tracks = []
-    for ii in range(len(break_point_indices)-1):
-        tracks += [go.Scattermapbox(lon=lon[break_point_indices[ii]:break_point_indices[ii+1]:skip],
-                        lat=lat[break_point_indices[ii]:break_point_indices[ii+1]:skip],
-                        mode='lines', line={'width':2.0, 'color':'white'}, name=campaign_name,
-                        showlegend=False, hoverinfo='skip', uid='ship_tracks')]
+    # tracks = []
+    for ii in break_point_indices:
+        X += [lon[ii]]
+        Y += [lat[ii]]
+        L += [labels[ii]]
 
-    return tracks
+
+    trace = go.Scattermapbox(lon=X, lat=Y, text=L, mode='markers+text',
+        textposition='top right',
+        textfont=dict(color='white'),
+        showlegend=False)
+
+    # return tracks
+    return trace
 
 
 def create_data_markers_trace(lon, lat, T, Z, label, fn, skip=1):
 
-    ## Figure out field campaign name.
-    campaign_name = fn[0].split('/')[0]
-    campaign_names = [x.split('/')[0] for x in fn]
-
     cmin,cmax = get_cbar_range(Z)
 
     if 'SST' in label:
-        cmap = 'jet'
+        cmap = cc.rainbow #'jet'
     elif 'WSPD' in label:
         cmap = cc.CET_L20
     else:
         cmap = cc.CET_R1
 
-    return go.Scattermapbox(lon=lon[::skip], lat=lat[::skip],
-                    marker=dict(color=Z[::skip], cmin=cmin, cmax=cmax, colorscale=cmap, allowoverlap=False,
-                        colorbar=dict(len=0.6, title=label, y=0.99, yanchor='top', x=0.99,
-                                        xanchor='right',bgcolor=color_light_2),
-                        ),
-                    hovertemplate = '%{text}<br>lon: %{lon:.2f}<br>lat: %{lat:.2f}<br>'+label+': %{marker.color:.2f}<extra></extra>',
-                    text= campaign_names[::skip],
-                    showlegend=False,
-                    uid='ship_data')
+    coordinates = [[-180, -80],[180,-80],[180,80],[-180,80]]
+    x0, y0 = lnglat_to_meters(coordinates[0][0], coordinates[0][1]) # To web mercartor.
+    x1, y1 = lnglat_to_meters(coordinates[2][0], coordinates[2][1]) # To web mercartor.
+    cvs = ds.Canvas(plot_width=1800, plot_height=800, x_range=[x0,x1], y_range=[y0,y1])
+
+    dff = pd.DataFrame(dict(Lon=lon, Lat=lat, Data=Z))
+    dff.loc[:, 'Easting'], dff.loc[:, 'Northing'] = lnglat_to_meters(dff.Lon,dff.Lat) # To web mercartor.
+    agg = cvs.points(dff, x='Easting', y='Northing', agg=ds.mean('Data'))
+    img = tf.shade(tf.spread(agg,3), cmap=cmap)[::-1].to_pil()
+
+    # return tracks
+    return img, coordinates
 
 
 def add_ndbc():
@@ -111,7 +147,7 @@ def add_ndbc():
     marker_symbols =  ["star" for x in range(len(df['lon']))]
     return go.Scattermapbox(lon=df['lon'].values, lat=df['lat'].values, text=df['name'].values,
                             marker = {'size': marker_sizes, 'symbol': marker_symbols, 'allowoverlap':True},
-                            uid='ndbc_markers', hovertemplate = '%{text}<extra></extra>')
+                            uid='ndbc_markers', hovertemplate = '%{text}<extra></extra>', showlegend=False)
 
 
 def add_grid_lines(fig, dx=5, width=0.3, color='grey'):
@@ -215,6 +251,7 @@ fig.update_layout(
     mapbox_style='satellite',
     margin=dict(l=20, r=20, t=20, b=20),
     paper_bgcolor=color_dark_3,
+    font_color = 'black',
     legend = dict(bgcolor=color_light_2,
                     yanchor="top",
                     y=0.99,
@@ -232,9 +269,16 @@ fig.update_layout(
 ## Skip ship tracks to improve loading time.
 ## Plotting every 100 seems to be OK for zoom level 1. Every 1000 eliminates most of the detail.
 ## TODO: Check if skip value is OK for finer zooms.
-cruise_track = create_cruise_track_trace(X.values, Y.values, program_year.values, skip=100) # Cruise track will always be full track.
-for ct in cruise_track:
-    fig.add_trace(ct)
+# cruise_track = create_cruise_track_trace(X.values, Y.values, program_year.values, skip=100) # Cruise track will always be full track.
+# for ct in cruise_track:
+#     fig.add_trace(ct)
+cruise_track_img, cruise_track_coords = create_cruise_track_trace(X.values, Y.values, program_year.values) # Cruise track will always be full track.
+cruise_track_layer_dict = {
+                    "sourcetype": "image",
+                    "source": cruise_track_img,
+                    "coordinates": cruise_track_coords}
+## The cruise layer dictionary is used in the callback function below.
+fig.add_trace(create_cruise_track_labels(X.values, Y.values, program_year.values))
 
 
 ## Add NDBC buoy markers.
@@ -463,7 +507,7 @@ def update_plot_with_selected_values(start_date, end_date, selected_programs, se
 
     ## Reset the traces with uid = 'ship_data'
     idx_ship_data = [x for x in range(len(fig.data)) if fig.data[x]['uid'] == 'ship_data']
-    print(idx_ship_data)
+    # print(idx_ship_data)
 
     if len(idx_ship_data) > 0:
         #fig.data.pop(idx_ship_data[0])
@@ -472,18 +516,47 @@ def update_plot_with_selected_values(start_date, end_date, selected_programs, se
     if len(df1) > 0:
 
         if color_by_variable == 'SST':
-            data_markers = create_data_markers_trace(X1, Y1, T1, sst1, 'SST [C]', program_year.values)
+            Z = sst1
+            label = 'SST [C]'
         else:
-            data_markers = create_data_markers_trace(X1, Y1, T1, wspd1, 'WSPD [m/s]', program_year.values)
+            Z = wspd1
+            label = 'WSPD [m/s]'
 
-        fig.add_trace(data_markers)
+        cruise_track_data_img, cruise_track_coords = create_data_markers_trace(X1, Y1, T1, Z, label, program_year.values)
+        cruise_track_data_layer_dict = {
+                            "sourcetype": "image",
+                            "source": cruise_track_data_img,
+                            "coordinates": cruise_track_coords}
+        fig.update_layout(mapbox_layers = [cruise_track_layer_dict, cruise_track_data_layer_dict])
 
-    # fig.add_trace(add_ndbc())
-    # add_grid_lines(fig, dx=10)
+        # Dummy trace for color bar.
+        cmin,cmax = get_cbar_range(Z)
 
-    print(fig['data'])
+        if 'SST' in label:
+            cmap = 'jet'
+        elif 'WSPD' in label:
+            cmap = cc.CET_L20
+        else:
+            cmap = cc.CET_R1
+
+        dummy_trace=go.Scatter(x=[None],
+                y=[None],
+                mode='markers',
+                marker=dict(
+                    colorscale=cmap, cmin=cmin, cmax=cmax, 
+                    colorbar=dict(len=0.6, title=label, y=0.99, yanchor='top', x=0.99,
+                    xanchor='right',bgcolor=color_light_2),
+                    showscale=True),
+                hoverinfo='none',
+                showlegend=False)
+
+        fig.add_trace(dummy_trace)
+
+    else:
+        fig.update_layout(mapbox_layers = [cruise_track_layer_dict,])
 
 
+    ## Update Scatter Plot
     fig_scatter.update_traces(x=sst1, y=wspd1)
 
     ## Campaigns label string.
