@@ -6,6 +6,7 @@ channels:
   - defaults
 dependencies:
   - python=3.7
+  - matplotlib
   - numpy
   - cftime
   - pandas
@@ -14,3 +15,6 @@ dependencies:
   - dash
   - dash-bootstrap-components
   - colorcet
+  - psycopg2
+  - httplib2
+  - lxml
