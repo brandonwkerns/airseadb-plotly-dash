@@ -10,6 +10,7 @@ dependencies:
   - cftime
   - pandas
   - plotly
+  - datashader
   - dash
   - dash-bootstrap-components
   - colorcet
