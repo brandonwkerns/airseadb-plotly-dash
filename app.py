@@ -55,7 +55,7 @@ def backward_diff(x):
     return dx
 
 
-def create_cruise_track_trace(lon, lat, fn, skip=1):
+def create_cruise_track_trace(lon, lat, fn, skip=1, color='darkgrey'):
 
     coordinates = [[-180, -80],[180,-80],[180,80],[-180,80]]
     x0, y0 = lnglat_to_meters(coordinates[0][0], coordinates[0][1]) # To web mercartor.
@@ -66,7 +66,7 @@ def create_cruise_track_trace(lon, lat, fn, skip=1):
     dff.loc[:, 'Easting'], dff.loc[:, 'Northing'] = lnglat_to_meters(dff.Lon,dff.Lat) # To web mercartor.
     agg = cvs.points(dff, x='Easting', y='Northing', agg=ds.any())
 
-    img = tf.shade(tf.spread(agg,1), cmap=['darkgrey',])[::-1].to_pil()
+    img = tf.shade(tf.spread(agg,1), cmap=[color,])[::-1].to_pil()
 
     # return tracks
     return img, coordinates
@@ -210,7 +210,7 @@ def query_data(db_host, db_name, user, password, query_text, verbose=False):
         if verbose:
             print('Query returned {0:d} observations.'.format(len(df)))
 
-        df = df.dropna()
+        # df = df.dropna()
 
     return df
 
@@ -235,6 +235,30 @@ program_year = df['program_year']
 min_date0 = df['datetime'].min()
 max_date0 = df['datetime'].max()
 # print(min_date0, max_date0)
+
+## Saildrone
+## Initially, load all the points into memory.
+query_sd = '''
+    SELECT datetime,lon,lat,sst_sbe,sst_ctd,wspd,id
+        FROM saildrone_data
+    '''
+df_sd = query_data('localhost', 'airseadb', 'bkerns', 'huracan5', query_sd, verbose=True)
+
+print(len(df_sd))
+## Prepare the data.
+X_sd = df_sd['lon']
+Y_sd = df_sd['lat']
+# T_sd = df_sd['Datetime']
+sst_sd = df_sd['sst_sbe']
+wspd_sd = df_sd['wspd']
+id_sd = df_sd['id']
+
+min_date0_sd = df_sd['datetime'].min()
+max_date0_sd = df_sd['datetime'].max()
+
+print(np.nanmin(X_sd), np.nanmax(X_sd))
+print(min_date0_sd, max_date0_sd)
+
 
 ##
 ## 1.2. Plot Map
@@ -280,6 +304,18 @@ cruise_track_layer_dict = {
 ## The cruise layer dictionary is used in the callback function below.
 fig.add_trace(create_cruise_track_labels(X.values, Y.values, program_year.values))
 
+print(X_sd.values)
+print(Y_sd.values)
+print(np.unique(id_sd.values))
+cruise_track_img_sd, cruise_track_coords_sd = create_cruise_track_trace(X_sd.values, Y_sd.values, id_sd.values, color='cyan') # Cruise track will always be full track.
+cruise_track_layer_dict_sd = {
+                    "sourcetype": "image",
+                    "source": cruise_track_img_sd,
+                    "coordinates": cruise_track_coords_sd}
+## The cruise layer dictionary is used in the callback function below.
+# fig.add_trace(create_cruise_track_labels(X.values, Y.values, program_year.values))
+
+
 
 ## Add NDBC buoy markers.
 fig.add_trace(add_ndbc())
@@ -317,11 +353,21 @@ add_grid_lines(fig, dx=10)
 query = 'SELECT DISTINCT program, years FROM ship_data'
 df_programs = query_data('localhost', 'airseadb', 'bkerns', 'huracan5', query, verbose=False)
 
-
 def programs_df_to_list(df):
     return ['{0:s} ({1:s})'.format(df['program'][x], df['years'][x]) for x in range(len(df))]
 
-dropdown_programs_list = programs_df_to_list(df_programs)
+dropdown_programs_list = ['Buoys']
+dropdown_programs_list += programs_df_to_list(df_programs)
+
+
+## List of field campaigns and year(years).
+query = 'SELECT DISTINCT id FROM saildrone_data'
+df_saildrone_deployments = query_data('localhost', 'airseadb', 'bkerns', 'huracan5', query, verbose=False)
+
+print(df_saildrone_deployments['id'].values.tolist())
+dropdown_programs_list += df_saildrone_deployments['id'].values.tolist()
+
+
 
 banner = html.Div([
         html.H1('AirSeaDB', className='banner-header'),
@@ -484,7 +530,11 @@ def update_plot_with_selected_values(start_date, end_date, selected_programs, se
         selected_programs_in += ')'
     # print(selected_programs_in)
 
+    ##
     ## Query the database.
+    ##
+
+    ## Ship Data
     query = '''
         SELECT datetime,lon,lat,t_sea_snake,wspd_psd,decimal_day_of_year,concat("program", ' (', "years", ')') AS "program_year"
             FROM ship_data WHERE t_sea_snake > {0}
@@ -527,7 +577,7 @@ def update_plot_with_selected_values(start_date, end_date, selected_programs, se
                             "sourcetype": "image",
                             "source": cruise_track_data_img,
                             "coordinates": cruise_track_coords}
-        fig.update_layout(mapbox_layers = [cruise_track_layer_dict, cruise_track_data_layer_dict])
+        fig.update_layout(mapbox_layers = [cruise_track_layer_dict, cruise_track_layer_dict_sd, cruise_track_data_layer_dict])
 
         # Dummy trace for color bar.
         cmin,cmax = get_cbar_range(Z)
@@ -553,7 +603,7 @@ def update_plot_with_selected_values(start_date, end_date, selected_programs, se
         fig.add_trace(dummy_trace)
 
     else:
-        fig.update_layout(mapbox_layers = [cruise_track_layer_dict,])
+        fig.update_layout(mapbox_layers = [cruise_track_layer_dict, cruise_track_layer_dict_sd])
 
 
     ## Update Scatter Plot
