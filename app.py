@@ -654,5 +654,5 @@ def func(start_date, end_date, min_sst_input_value, max_sst_input_value,
 
 ############### 4. Initialize the app. ###################
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, host='0.0.0.0', port=9000)
 
