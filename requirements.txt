@@ -1,5 +1,5 @@
-python==3.7
-numpy==1.22
+# python==3.7
+numpy #==1.22
 cftime
 pandas
 xarray
@@ -8,10 +8,13 @@ plotly
 dash
 dash-bootstrap-components
 matplotlib
-basemap
-basemap-data-hires
+datashader
+# basemap
+# basemap-data-hires
 colorcet
 lxml
-ipython
+# ipython
 gunicorn
 httplib2
+psycopg2
+dask[dataframe]
