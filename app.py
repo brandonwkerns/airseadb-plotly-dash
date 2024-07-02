@@ -1,7 +1,7 @@
 import os
-os.environ['MPLCONFIGDIR'] = "/var/www/FLASKAPPS/airseadb/graph"
+# os.environ['MPLCONFIGDIR'] = "/var/www/FLASKAPPS/airseadb/graph"
 import matplotlib
-matplotlib.use('Agg')
+# matplotlib.use('Agg')
 
 from httplib2 import Response
 import numpy as np
@@ -31,6 +31,10 @@ color_light_1 = '#a4967a'
 color_light_2 = '#bfb39b'
 #############################
 
+
+## Database Host
+# HOST='localhost'  # For invoking on the command line with "python app.py"
+HOST='database'  # For using Docker with the option --add-host=database:<host-ip>
 
 ## Initial App Settings
 MIN_DATE = cftime.datetime(1995, 8, 5)
@@ -139,7 +143,7 @@ def create_data_markers_trace(lon, lat, T, Z, label, fn, skip=1):
 
 def add_ndbc():
 
-    fn = '/var/www/FLASKAPPS/airseadb/data/activestations.xml'
+    fn = 'data/activestations.xml'
     df = pd.read_xml(fn)
     # df = df[df['met'] != 'n'] # Tried to subset by met, but no success.
 
@@ -222,7 +226,7 @@ query = '''
             AND wspd_psd > -999.0
             AND wspd_psd < 999.0
     '''
-df = query_data('localhost', 'airseadb', 'bkerns', 'huracan5', query, verbose=True)
+df = query_data(HOST, 'airseadb', 'bkerns', 'huracan5', query, verbose=True)
 
 ## Prepare the data.
 X = df['lon']
@@ -242,7 +246,7 @@ query_sd = '''
     SELECT datetime,lon,lat,sst_sbe,sst_ctd,wspd,id
         FROM saildrone_data
     '''
-df_sd = query_data('localhost', 'airseadb', 'bkerns', 'huracan5', query_sd, verbose=True)
+df_sd = query_data(HOST, 'airseadb', 'bkerns', 'huracan5', query_sd, verbose=True)
 
 print(len(df_sd))
 ## Prepare the data.
@@ -351,7 +355,7 @@ add_grid_lines(fig, dx=10)
 
 ## List of field campaigns and year(years).
 query = 'SELECT DISTINCT program, years FROM ship_data'
-df_programs = query_data('localhost', 'airseadb', 'bkerns', 'huracan5', query, verbose=False)
+df_programs = query_data(HOST, 'airseadb', 'bkerns', 'huracan5', query, verbose=False)
 
 def programs_df_to_list(df):
     return ['{0:s} ({1:s})'.format(df['program'][x], df['years'][x]) for x in range(len(df))]
@@ -362,7 +366,7 @@ dropdown_programs_list += programs_df_to_list(df_programs)
 
 ## List of field campaigns and year(years).
 query = 'SELECT DISTINCT id FROM saildrone_data'
-df_saildrone_deployments = query_data('localhost', 'airseadb', 'bkerns', 'huracan5', query, verbose=False)
+df_saildrone_deployments = query_data(HOST, 'airseadb', 'bkerns', 'huracan5', query, verbose=False)
 
 print(df_saildrone_deployments['id'].values.tolist())
 dropdown_programs_list += df_saildrone_deployments['id'].values.tolist()
@@ -545,7 +549,7 @@ def update_plot_with_selected_values(start_date, end_date, selected_programs, se
                 AND concat("program", ' (', "years", ')') IN {6}
         '''.format(min_sst_input_value, max_sst_input_value, min_wspd_input_value, max_wspd_input_value, start_date, end_date,selected_programs_in)
     # print(query)
-    df1 = query_data('localhost','airseadb','bkerns','huracan5',query,verbose=True)
+    df1 = query_data(HOST,'airseadb','bkerns','huracan5',query,verbose=True)
 
     X1 = df1['lon']
     Y1 = df1['lat']
@@ -642,7 +646,7 @@ def func(start_date, end_date, min_sst_input_value, max_sst_input_value,
                     AND wspd_psd < {3}
                     AND datetime BETWEEN '{4}' AND '{5}'
             '''.format(min_sst_input_value, max_sst_input_value, min_wspd_input_value, max_wspd_input_value, start_date, end_date)
-        df1 = query_data('localhost','airseadb','bkerns','huracan5',query,verbose=True) #   pd.read_sql_query(query, con1)
+        df1 = query_data(HOST,'airseadb','bkerns','huracan5',query,verbose=True) #   pd.read_sql_query(query, con1)
 
         ## The 1 output corresponds with the 1 Output entry in the callback above.
         return dcc.send_data_frame(df1.to_csv, filename="AirSeaDB_selected_data.csv")
@@ -654,5 +658,5 @@ def func(start_date, end_date, min_sst_input_value, max_sst_input_value,
 
 ############### 4. Initialize the app. ###################
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0', port=9000)
+    app.run_server(debug=True, host='0.0.0.0', port=9000, use_reloader=False)
 
