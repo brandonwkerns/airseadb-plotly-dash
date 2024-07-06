@@ -264,6 +264,32 @@ print(np.nanmin(X_sd), np.nanmax(X_sd))
 print(min_date0_sd, max_date0_sd)
 
 
+
+## ARM
+## Initially, load all the points into memory.
+query_sd = '''
+    SELECT datetime,lon,lat,t_sea,wspd_AMF2,concat("program", ' (', "years", ')') AS "program_year"
+        FROM arm_data
+    '''
+df_arm = query_data('localhost', 'airseadb', 'bkerns', 'huracan5', query_sd, verbose=True)
+
+print(len(df_sd))
+## Prepare the data.
+X_arm = df_arm['lon'] - 360.0
+Y_arm = df_arm['lat']
+# T_sd = df_sd['Datetime']
+sst_arm = df_arm['t_sea']
+wspd_arm = 0.0*df_arm['t_sea'] #df_arm['wspd_AMF2']
+# id_arm = df_sd['id']
+program_year_arm = df_arm['program_year']
+
+min_date0_arm = df_arm['datetime'].min()
+max_date0_arm = df_arm['datetime'].max()
+
+print(np.nanmin(X_arm), np.nanmax(X_arm))
+print(min_date0_arm, max_date0_arm)
+
+
 ##
 ## 1.2. Plot Map
 ##
@@ -320,6 +346,25 @@ cruise_track_layer_dict_sd = {
 # fig.add_trace(create_cruise_track_labels(X.values, Y.values, program_year.values))
 
 
+cruise_track_img_arm, cruise_track_coords_arm = create_cruise_track_trace(X_arm.values, Y_arm.values, program_year_arm.values) # Cruise track will always be full track.
+cruise_track_layer_dict = {
+                    "sourcetype": "image",
+                    "source": cruise_track_img_arm,
+                    "coordinates": cruise_track_coords}
+## The cruise layer dictionary is used in the callback function below.
+fig.add_trace(create_cruise_track_labels(X_arm.values, Y_arm.values, program_year_arm.values))
+
+print(X_arm.values)
+print(Y_arm.values)
+print(np.unique(program_year_arm.values))
+cruise_track_img_arm, cruise_track_coords_arm = create_cruise_track_trace(X_arm.values, Y_arm.values, program_year_arm.values, color='cyan') # Cruise track will always be full track.
+cruise_track_layer_dict_arm = {
+                    "sourcetype": "image",
+                    "source": cruise_track_img_arm,
+                    "coordinates": cruise_track_coords_arm}
+## The cruise layer dictionary is used in the callback function below.
+# fig.add_trace(create_cruise_track_labels(X.values, Y.values, program_year.values))
+
 
 ## Add NDBC buoy markers.
 fig.add_trace(add_ndbc())
@@ -357,13 +402,16 @@ add_grid_lines(fig, dx=10)
 
 ## List of field campaigns and year(years).
 query = 'SELECT DISTINCT program, years FROM ship_data'
-df_programs = query_data(HOST, 'airseadb', 'bkerns', 'huracan5', query, verbose=False)
+query_arm = 'SELECT DISTINCT program, years FROM arm_data'
+df_programs = query_data('localhost', 'airseadb', 'bkerns', 'huracan5', query, verbose=False)
+df_programs_arm = query_data('localhost', 'airseadb', 'bkerns', 'huracan5', query_arm, verbose=False)
 
 def programs_df_to_list(df):
     return ['{0:s} ({1:s})'.format(df['program'][x], df['years'][x]) for x in range(len(df))]
 
 dropdown_programs_list = ['Buoys']
 dropdown_programs_list += programs_df_to_list(df_programs)
+dropdown_programs_list += programs_df_to_list(df_programs_arm)
 
 
 ## List of field campaigns and year(years).
@@ -610,6 +658,91 @@ def update_plot_with_selected_values(start_date, end_date, selected_programs, se
 
     else:
         fig.update_layout(mapbox_layers = [cruise_track_layer_dict, cruise_track_layer_dict_sd])
+
+
+
+
+
+    ## ARM Ship Data (Magic)
+    query = '''
+        SELECT datetime,lon,lat,t_sea,wspd_amf2,decimal_day_of_year,concat("program", ' (', "years", ')') AS "program_year"
+            FROM arm_data WHERE t_sea > {0}
+                AND t_sea < {1}
+                AND wspd_amf2 > {2}
+                AND wspd_amf2 < {3}
+                AND datetime BETWEEN '{4}' AND '{5}'
+                AND concat("program", ' (', "years", ')') IN {6}
+        '''.format(min_sst_input_value, max_sst_input_value, min_wspd_input_value, max_wspd_input_value, start_date, end_date,selected_programs_in)
+    # print(query)
+    df2 = query_data('localhost','airseadb','bkerns','huracan5',query,verbose=True)
+
+    X2 = df2['lon'] - 360.0
+    Y2 = df2['lat']
+    dT2 = df2['datetime']
+    T2 = df2['decimal_day_of_year']
+    sst2 = df2['t_sea']
+    wspd2 = df2['wspd_amf2']
+    program_year = df2['program_year']
+
+    ## Reset the traces with uid = 'ship_data'
+    # idx_ship_data = [x for x in range(len(fig.data)) if fig.data[x]['uid'] == 'ship_data']
+
+    # if len(idx_ship_data) > 0:
+    #     fig['data'] = tuple(fig['data'][x] for x in range(len(fig['data'])) if not x in idx_ship_data)
+
+    if len(df2) > 0 and len(df2) > 0:
+
+        if color_by_variable == 'SST':
+            Z = sst2
+            label = 'SST [C]'
+        else:
+            Z = wspd2
+            label = 'WSPD [m/s]'
+
+        print(X2)
+        print(Z)
+        cruise_track_data_img_arm, cruise_track_coords_arm = create_data_markers_trace(X2, Y2, T2, Z, label, program_year.values)
+        cruise_track_data_layer_dict_arm = {
+                            "sourcetype": "image",
+                            "source": cruise_track_data_img_arm,
+                            "coordinates": cruise_track_coords_arm}
+        fig.update_layout(mapbox_layers = [cruise_track_layer_dict, cruise_track_layer_dict_sd, cruise_track_data_layer_dict, cruise_track_data_layer_dict_arm])
+
+        # Dummy trace for color bar.
+        cmin,cmax = get_cbar_range(Z)
+
+        if 'SST' in label:
+            cmap = 'jet'
+        elif 'WSPD' in label:
+            cmap = cc.CET_L20
+        else:
+            cmap = cc.CET_R1
+
+        dummy_trace2=go.Scatter(x=[None],
+                y=[None],
+                mode='markers',
+                marker=dict(
+                    colorscale=cmap, cmin=cmin, cmax=cmax, 
+                    colorbar=dict(len=0.6, title=label, y=0.99, yanchor='top', x=0.99,
+                    xanchor='right',bgcolor=color_light_2),
+                    showscale=True),
+                hoverinfo='none',
+                showlegend=False)
+
+        fig.add_trace(dummy_trace2)
+
+    else:
+        fig.update_layout(mapbox_layers = [cruise_track_layer_dict, cruise_track_layer_dict_sd, cruise_track_layer_dict_arm])
+
+
+
+
+
+
+
+
+
+
 
 
     ## Update Scatter Plot
