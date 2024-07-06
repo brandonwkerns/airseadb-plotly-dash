@@ -1,0 +1,10 @@
+services:
+  webapp:
+    build: .
+    ports:
+      - "8060:9000"
+    volumes:
+      - ./assets:/code/assets
+      - ./data:/code/data
+    extra_hosts:
+      - database:140.142.30.87
