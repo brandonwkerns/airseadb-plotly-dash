@@ -329,8 +329,10 @@ fig.add_trace(add_ndbc())
 ##
 
 fig_scatter = go.Figure(layout=dict(autosize=True, height=400))
-scatter_trace = go.Scattergl(x=sst, y=wspd, mode='markers')  ## Scatter with WebGL (Scattergl) for better performance with large data.
+print('--- Start Scatter Trace: '+dt.datetime.now().strftime('%H:%M:%S'), flush=True)
+scatter_trace = go.Scattergl(x=sst[::1], y=wspd[::1], mode='markers')  ## Scatter with WebGL (Scattergl) for better performance with large data.
 fig_scatter.add_trace(scatter_trace)
+print('--- End Scatter Trace: '+dt.datetime.now().strftime('%H:%M:%S'), flush=True)
 fig_scatter.update_xaxes(showline = True, linecolor = 'black', linewidth = 1, mirror = True)
 fig_scatter.update_yaxes(showline = True, linecolor = 'black', linewidth = 1, mirror = True)
 fig_scatter.update_layout(height=600, width=600,
@@ -658,5 +660,5 @@ def func(start_date, end_date, min_sst_input_value, max_sst_input_value,
 
 ############### 4. Initialize the app. ###################
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0', port=9000, use_reloader=False)
+    app.run_server(debug=False, host='0.0.0.0', port=9000, use_reloader=False)
 
