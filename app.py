@@ -271,7 +271,7 @@ query_sd = '''
     SELECT datetime,lon,lat,t_sea,wspd_AMF2,concat("program", ' (', "years", ')') AS "program_year"
         FROM arm_data
     '''
-df_arm = query_data('localhost', 'airseadb', 'bkerns', 'huracan5', query_sd, verbose=True)
+df_arm = query_data(HOST, 'airseadb', 'bkerns', 'huracan5', query_sd, verbose=True)
 
 print(len(df_sd))
 ## Prepare the data.
@@ -403,8 +403,8 @@ add_grid_lines(fig, dx=10)
 ## List of field campaigns and year(years).
 query = 'SELECT DISTINCT program, years FROM ship_data'
 query_arm = 'SELECT DISTINCT program, years FROM arm_data'
-df_programs = query_data('localhost', 'airseadb', 'bkerns', 'huracan5', query, verbose=False)
-df_programs_arm = query_data('localhost', 'airseadb', 'bkerns', 'huracan5', query_arm, verbose=False)
+df_programs = query_data(HOST, 'airseadb', 'bkerns', 'huracan5', query, verbose=False)
+df_programs_arm = query_data(HOST, 'airseadb', 'bkerns', 'huracan5', query_arm, verbose=False)
 
 def programs_df_to_list(df):
     return ['{0:s} ({1:s})'.format(df['program'][x], df['years'][x]) for x in range(len(df))]
@@ -674,7 +674,7 @@ def update_plot_with_selected_values(start_date, end_date, selected_programs, se
                 AND concat("program", ' (', "years", ')') IN {6}
         '''.format(min_sst_input_value, max_sst_input_value, min_wspd_input_value, max_wspd_input_value, start_date, end_date,selected_programs_in)
     # print(query)
-    df2 = query_data('localhost','airseadb','bkerns','huracan5',query,verbose=True)
+    df2 = query_data(HOST,'airseadb','bkerns','huracan5',query,verbose=True)
 
     X2 = df2['lon'] - 360.0
     Y2 = df2['lat']
